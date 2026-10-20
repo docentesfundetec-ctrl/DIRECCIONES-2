@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestión de direcciones de envío</title>
+  <meta name="description" content="Gestión de direcciones de envío para estudiantes de la fundación.">
+  <style>
+:root {
+  --ink: #10213d;
+  --blue: #1e40af;
+  --sky: #eaf1ff;
+  --line: #d9e1ed;
+  --muted: #65738a;
+  --bg: #f7f9fc;
+  --good: #166534;
+  --warn: #b45309;
+  --danger: #b91c1c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+button, input, textarea, select { font: inherit; }
+button {
+  border: 0;
+  cursor: pointer;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 700;
+  transition: .18s ease;
+}
+button:hover { filter: brightness(.93); transform: translateY(-1px); }
+button:disabled { opacity: .65; cursor: wait; transform: none; }
+input, textarea, select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--ink);
+  background: #fff;
+}
+textarea { min-height: 84px; resize: vertical; }
+.hidden { display: none !important; }
+.welcome {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 12% 12%, #dbeafe 0, transparent 32%),
+    radial-gradient(circle at 88% 88%, #d1fae5 0, transparent 28%),
+    #f8fafc;
+}
+.hero { width: min(880px, 100%); text-align: center; padding: 70px 30px; }
+.hero h1 {
+  font-size: clamp(2.5rem, 7vw, 5.2rem);
+  margin: 14px 0;
+  line-height: 1;
+}
+.hero p { color: var(--muted); font-size: 1.1rem; max-width: 590px; margin: 0 auto 36px; line-height: 1.6; }
+.eyebrow { color: var(--blue); font-size: .75rem; font-weight: 800; letter-spacing: .14em; }
+.role-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: auto; max-width: 620px; }
+.role-grid button {
+  text-align: left;
+  min-height: 128px;
+  padding: 24px;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 28px rgb(15 23 42 / .06);
+}
+.role-grid button strong { display: block; font-size: 1.25rem; }
+.role-grid button span { display: block; color: var(--muted); margin-top: 7px; font-size: .9rem; font-weight: 400; }
+.portal { max-width: 980px; margin: auto; padding: 34px 24px 70px; }
+.back { background: transparent; color: var(--blue); padding: 0; margin-bottom: 26px; }
+.access-card {
+  background: #fff;
+  max-width: 580px;
+  margin: 8vh auto 0;
+  border: 1px solid var(--line);
+  padding: clamp(28px, 6vw, 54px);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgb(15 23 42 / .05);
+}
+.access-card h1 { margin: 10px 0; font-size: clamp(2rem, 5vw, 3rem); }
+.access-card p { color: var(--muted); line-height: 1.55; }
+.access-card form { display: grid; gap: 16px; margin-top: 30px; }
+.access-card label, .edit-form label { display: grid; gap: 7px; font-weight: 700; font-size: .88rem; }
+.notice { color: var(--warn); background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: 8px; margin-top: 20px; }
+.ok { color: var(--good); background: #f0fdf4; border-color: #bbf7d0; }
+.student-result { margin: 28px auto; background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; max-width: 820px; }
+.result-head { padding: 28px 30px; background: var(--sky); }
+.result-head h2 { margin: 7px 0; font-size: 1.7rem; }
+.result-head p { margin: 0; color: var(--muted); }
+.student-result dl { margin: 0; }
+.student-result dl > div { display: grid; grid-template-columns: minmax(155px, .7fr) 2fr; border-top: 1px solid var(--line); }
+.student-result dt { background: #fafcff; padding: 15px 20px; font-weight: 700; }
+.student-result dd { margin: 0; padding: 15px 20px; overflow-wrap: anywhere; }
+.student-result aside { margin: 20px; padding: 16px; border-radius: 8px; background: #eff6ff; color: #1e3a8a; }
+.student-result aside p { margin: 7px 0 0; line-height: 1.5; }
+.student-result a { font-weight: 700; }
+.admin { max-width: 1300px; margin: auto; padding: 38px 24px 72px; }
+.admin header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.admin h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 6px 0; }
+.admin header p, .muted { color: var(--muted); margin: 0; }
+.admin-actions { display: flex; align-items: center; gap: 10px; }
+.menu-toggle { display: none; width: 44px; height: 44px; padding: 0; align-items: center; justify-content: center; }
+.menu-toggle span, .menu-toggle::before, .menu-toggle::after {
+  content: "";
+  display: block;
+  width: 19px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
+.menu-toggle { flex-direction: column; gap: 4px; }
+.secondary { background: #fff; color: var(--blue); border: 1px solid #bfdbfe; }
+.danger { color: var(--danger); background: #fff1f2; }
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #fff; border: 1px solid var(--line); padding: 14px; border-radius: 8px; margin: 28px 0 16px; }
+.toolbar > input { flex: 1 1 270px; }
+.file-button { background: #1e40af; color: #fff; border-radius: 8px; padding: 12px 16px; font-weight: 700; cursor: pointer; }
+.file-button input { display: none; }
+.mobile-logout { display: none; }
+.roster { display: grid; gap: 10px; }
+.roster article { background: #fff; border: 1px solid var(--line); padding: 17px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.roster article > div:first-child { display: flex; align-items: center; gap: 13px; min-width: 0; }
+.roster h2 { font-size: 1rem; margin: 0 0 4px; }
+.roster p { margin: 2px 0; font-size: .86rem; overflow-wrap: anywhere; }
+.avatar { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 50%; background: var(--sky); color: var(--blue); font-weight: 800; }
+.row-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+.row-actions button { padding: 8px 10px; font-size: .82rem; }
+.editor { background: #fff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 22px; margin: 18px 0; }
+.editor-title { display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+.editor h2 { margin: 0 0 18px; }
+.icon-button { padding: 2px 8px; background: transparent; color: var(--muted); font-size: 1.5rem; }
+.edit-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.edit-form .wide { grid-column: 1 / -1; }
+.editor-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+@media (max-width: 680px) {
+  body { background: #fff; }
+  button { min-height: 44px; border-radius: 7px; }
+  .welcome { align-items: start; padding: 24px 18px; }
+  .hero { padding: 42px 0; text-align: left; }
+  .hero h1 { font-size: clamp(2.15rem, 13vw, 3.2rem); }
+  .hero p { margin: 0 0 24px; }
+  .role-grid { gap: 10px; }
+  .role-grid button { min-height: auto; padding: 18px; box-shadow: none; }
+  .portal, .admin { padding: 22px 16px 44px; }
+  .back { margin-bottom: 16px; }
+  .access-card { margin: 0 auto; border: 0; box-shadow: none; padding: 18px 0 8px; }
+  .access-card h1 { font-size: 2rem; }
+  .student-result { border-left: 0; border-right: 0; border-radius: 0; margin-left: -16px; margin-right: -16px; }
+  .result-head { padding: 22px 16px; }
+  .student-result aside { margin: 16px; }
+  .role-grid, .edit-form { grid-template-columns: 1fr; }
+  .student-result dl > div { grid-template-columns: 1fr; }
+  .student-result dt { padding-bottom: 5px; }
+  .student-result dd { padding-top: 5px; }
+  .admin header { position: sticky; top: 0; z-index: 5; align-items: center; margin: -22px -16px 0; padding: 16px; background: rgb(255 255 255 / .96); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }
+  .admin h1 { font-size: 1.55rem; }
+  .admin-actions .secondary { display: none; }
+  .admin-actions .menu-toggle { display: flex; }
+  .toolbar { display: none; margin: 0 -16px 16px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 12px 16px 16px; box-shadow: 0 14px 26px rgb(15 23 42 / .08); }
+  .toolbar.open { display: flex; }
+  .toolbar > * { width: 100%; }
+  .toolbar button, .file-button { text-align: center; }
+  .mobile-logout { display: block; }
+  .roster article { align-items: stretch; flex-direction: column; border-left: 0; border-right: 0; border-radius: 0; margin: 0 -16px; padding: 15px 16px; }
+  .row-actions button { flex: 1; }
+  .editor { border-left: 0; border-right: 0; border-radius: 0; margin: 14px -16px; padding: 18px 16px; }
+  .edit-form .wide { grid-column: auto; }
+}
+
+.storage-note, .form-note { line-height: 1.5; margin: 14px 0 !important; }
+.edit-form small { color: var(--muted); font-weight: 400; line-height: 1.5; }
+.edit-form { align-items: start; }
+.edit-form label { align-content: start; }
+.empty-state { padding: 30px 16px; text-align: center; color: var(--muted); }
+.roster h2 { overflow-wrap: anywhere; }
+.editor { scroll-margin-top: 105px; }
+.edit-form datalist { display: none; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid #60a5fa; outline-offset: 3px; }
+
+.cloud-tools { margin-top: 30px; border: 1px solid var(--line); border-radius: 8px; background: white; padding: 18px; }
+.cloud-tools summary { cursor: pointer; font-weight: 700; color: var(--blue); }
+.cloud-tools p { line-height: 1.6; }
+.access-row { border-top: 1px solid var(--line); padding: 12px 0; }
+.cloud-tools .row-actions { flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div id="app"><main class="portal"><p>Cargando la herramienta de envíos… Si este mensaje continúa, revisa tu conexión y recarga la página.</p></main></div>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <noscript>Activa JavaScript para usar la herramienta.</noscript>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

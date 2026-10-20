@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    function admin() {
+      return signedIn() && request.auth.token.email == 'docentesfundetec@gmail.com';
+    }
+    function ownStudent(id) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/studentAccess/$(request.auth.uid))
+        && get(/databases/$(database)/documents/studentAccess/$(request.auth.uid)).data.studentId == id;
+    }
+    match /students/{id} {
+      allow list: if admin();
+      allow get: if admin() || ownStudent(id);
+      allow create, update: if admin()
+        && request.resource.data.keys().hasOnly([
+          'name', 'documentType', 'documentNumber', 'phone', 'department',
+          'municipality', 'neighborhood', 'address', 'reference',
+          'shippingMethod', 'program', 'version', 'updatedAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.documentNumber is string
+        && request.resource.data.version is int;
+      allow delete: if admin();
+    }
+    match /documentIndex/{id} {
+      allow read, write: if admin();
+    }
+    match /studentAccess/{uid} {
+      allow get: if admin() || (signedIn() && request.auth.uid == uid);
+      allow list, create, update, delete: if admin();
+    }
+    match /accessRequests/{uid} {
+      allow get: if admin() || (signedIn() && request.auth.uid == uid);
+      allow list, delete: if admin();
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['documentNumber', 'name', 'email', 'createdAt'])
+        && request.resource.data.documentNumber is string
+        && request.resource.data.documentNumber.size() > 0
+        && request.resource.data.documentNumber.size() <= 80
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 200
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
